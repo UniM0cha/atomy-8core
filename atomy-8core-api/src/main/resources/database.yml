@@ -1,0 +1,36 @@
+spring:
+  jpa:
+    open-in-view: false
+---
+spring:
+  config:
+    activate:
+      on-profile:
+        - ci
+        - local
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/atomy_8core
+    username: postgres
+    password: postgres
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    url: ENC(12mUyqxo/5+iyIiiAHi6fVdxhVGCtcwdaFyE3osdaqmrB4dr7jGgf8LydGivHT73y+f7T3dvN20F6h0JKRxCLIee3P+L5QpoEA/rDp5OVhwgOnPA5DLsUg96cF71es4jhnAaHqRLaqQyk4CkRZ2wcg==)
+    username: ENC(ngPBQImINXA1SjwYTHWlVo2LGUy1NTgrGk4/d4bPM8LwthoQ4B7d1dclHWoYmBjy)
+    password: ENC(9ajitKAg6YckVrIYY0DMdPpQ5OBysxZ1MFvyfbVBznFAEku1T0gqbhq8TJ3nE87QuhlEj8gN/Z6JGC9vXSlaLg==)
+

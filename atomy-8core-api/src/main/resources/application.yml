@@ -1,0 +1,17 @@
+spring:
+  config:
+    import:
+      - database.yml
+      - logging.yml
+      - security.yml
+      - sentry.yml
+      - server.yml
+      - springdoc.yml
+
+  output:
+    ansi:
+      enabled: always
+
+jasypt:
+  encryptor:
+    password: ${JASYPT_PASSWORD}
