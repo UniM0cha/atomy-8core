@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 
-export default function CalendarDetail() {
+export default function Detail() {
   return (
     <View style={styles.container}>
       <Text>캘린더 상세</Text>
