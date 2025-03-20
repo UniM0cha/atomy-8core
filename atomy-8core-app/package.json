@@ -3,25 +3,27 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
-    "reset-project": "node ./scripts/reset-project.js",
+    "start": "expo start --dev-client",
+    "submit": "eas build --auto-submit",
+    "lint": "expo lint",
     "android": "expo run:android",
-    "ios": "expo run:ios",
-    "web": "expo start --web",
-    "test": "jest --watchAll",
-    "lint": "expo lint"
+    "ios": "expo run:ios"
   },
   "jest": {
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@babel/plugin-proposal-decorators": "^7.25.9",
     "@expo/vector-icons": "^14.0.2",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
-    "@tanstack/react-query": "^5.66.9",
+    "@tanstack/react-query": "^5.69.0",
+    "@types/react-native-sqlite-storage": "^6.0.5",
+    "date-fns": "^4.1.0",
     "expo": "~52.0.36",
     "expo-blur": "~14.0.3",
     "expo-constants": "~17.0.3",
+    "expo-file-system": "^18.0.11",
     "expo-font": "~13.0.1",
     "expo-haptics": "~14.0.1",
     "expo-linking": "~7.0.5",
@@ -31,6 +33,7 @@
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
+    "formik": "^2.4.6",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native": "0.76.7",
@@ -45,6 +48,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/jest": "^29.5.12",
+    "@types/node": "^22.13.10",
     "@types/react": "~18.3.12",
     "@types/react-test-renderer": "^18.3.0",
     "eslint": "^8.57.0",

@@ -1,5 +1,5 @@
-import { Tabs } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Tabs } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function TabsLayout() {
   return (
@@ -7,15 +7,15 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: '달력',
           headerShown: false,
-          title: "캘린더",
           tabBarIcon: ({ color, size }) => <MaterialIcons name="calendar-month" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="statistics"
         options={{
-          title: "통계",
+          title: '통계',
           tabBarIcon: ({ color, size }) => <MaterialIcons name="bar-chart" size={size} color={color} />,
         }}
       />
