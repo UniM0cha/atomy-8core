@@ -11,14 +11,15 @@ import {
   View,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Habit } from '@/storage/types';
+import { Core } from '@/storage/types';
 
-export default function HabitDetail() {
-  const { id, date } = useLocalSearchParams();
-  const habitId = typeof id === 'string' ? parseInt(id, 10) : 0;
+export default function CoreDetail() {
+  const { core, date } = useLocalSearchParams();
+  console.log(core, date);
+
   const dateString = date as string;
 
-  const [habit, setHabit] = useState<Habit | null>(null);
+  const [habit, setHabit] = useState<Core | null>(null);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

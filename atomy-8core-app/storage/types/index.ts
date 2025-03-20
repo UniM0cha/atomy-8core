@@ -1,13 +1,13 @@
 // 습관 인터페이스
-export interface Habit {
+export interface Core {
   core: number;
   completed: boolean;
   content: string;
 }
 
 // 하루 습관 데이터
-export interface DayHabits {
-  habits: Habit[];
+export interface DayCores {
+  habits: Core[];
   updatedAt: Date;
 }
 

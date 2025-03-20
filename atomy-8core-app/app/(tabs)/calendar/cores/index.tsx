@@ -1,76 +1,65 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-// import { getCompletionStats, getHabitsForDate } from '@/storage/HabitStorage';
-import { useHabits } from '@/hooks/useHabits';
-import { parse } from 'date-fns';
+import { useCores } from '@/hooks/useCores';
+import { format, parse } from 'date-fns';
+import { getCoreTitle } from '@/model/CoreModel';
 
-export default function DetailScreen() {
+export default function CoresScreen() {
   const searchParams = useLocalSearchParams();
   const date = parse(searchParams.date as string, 'yyyy-MM-dd', new Date());
 
-  const { data: habits } = useHabits(date);
+  const { data: originalCores } = useCores(date);
+  const cores = originalCores?.sort((a, b) => a.core - b.core);
 
-  console.log(habits);
-
-  // 습관 상세 페이지로 이동
-  const navigateToHabitDetail = (habitId: number) => {
+  function goToCore(core: number) {
+    console.log(`${core}코어로 이동`);
     router.push({
-      pathname: `/detail/habit/${habitId}`,
-      params: { date: dateString },
+      pathname: '/calendar/cores/[core]',
+      params: { core: core, date: format(date, 'yyyy-MM-dd') },
     });
-  };
+  }
 
-  // Format the date for display
-  const formatDate = (dateString: string) => {
-    if (!dateString || typeof dateString !== 'string') return '날짜 선택';
-
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'long',
-    });
-  };
-
-  if (!habits) {
+  if (!cores) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color="#2e64e5" />
+        <ActivityIndicator size="large" />
         <Text style={{ marginTop: 10 }}>습관 데이터 로드 중...</Text>
       </View>
     );
   }
 
+  const completed = cores.filter((h) => h.completed).length;
+  const total = cores.length;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
+        <Text style={styles.dateText}>{format(date, 'yyyy년 M월 d일')}</Text>
         <View style={styles.statsContainer}>
           <Text style={styles.subtitle}>8가지 성공 습관</Text>
-          <Text style={styles.stats}>{/*완료: {stats.completed}/{stats.total}*/}</Text>
+          <Text style={styles.stats}>
+            완료: {completed}/{total}
+          </Text>
         </View>
       </View>
 
-      <ScrollView style={styles.habitsContainer}>
-        {habits.map((habit) => (
+      <ScrollView style={styles.coresContainer}>
+        {cores.map((core) => (
           <TouchableOpacity
-            key={habit.core}
-            style={[styles.habitItem, habit.completed && styles.habitItemCompleted]}
-            onPress={() => navigateToHabitDetail(habit.core)}
+            key={core.core}
+            style={[styles.coreItem, core.completed && styles.coreItemCompleted]}
+            onPress={() => goToCore(core.core)}
           >
-            <View style={styles.habitInfo}>
-              <Text style={styles.habitTitle}>아무튼 타이틀</Text>
-              <Text style={styles.habitDescription}>아무튼 설명</Text>
-
-              {/*{habit.notes ? (*/}
-              {/*  <Text style={styles.habitNotes} numberOfLines={1} ellipsizeMode="tail">*/}
-              {/*    {habit.notes}*/}
-              {/*  </Text>*/}
-              {/*) : null}*/}
+            <View style={styles.coreInfo}>
+              <Text style={styles.coreTitle}>{getCoreTitle(core.core)}</Text>
+              {core.content && (
+                <Text style={styles.coreDescription} numberOfLines={2}>
+                  {core.content}
+                </Text>
+              )}
             </View>
-            <View style={[styles.checkbox, habit.completed && styles.checkboxChecked]}>
-              {habit.completed && <Text style={styles.checkmark}>✓</Text>}
+            <View style={[styles.checkbox, core.completed && styles.checkboxChecked]}>
+              {core.completed && <Text style={styles.checkmark}>✓</Text>}
             </View>
           </TouchableOpacity>
         ))}
@@ -114,11 +103,11 @@ const styles = StyleSheet.create({
     color: '#2e64e5',
     fontWeight: '600',
   },
-  habitsContainer: {
+  coresContainer: {
     flex: 1,
     padding: 15,
   },
-  habitItem: {
+  coreItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -132,26 +121,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
   },
-  habitItemCompleted: {
+  coreItemCompleted: {
     backgroundColor: '#f0f8ff',
   },
-  habitInfo: {
+  coreInfo: {
     flex: 1,
   },
-  habitTitle: {
+  coreTitle: {
     fontSize: 16,
     fontWeight: '600',
   },
-  habitDescription: {
+  coreDescription: {
     fontSize: 14,
     color: '#666',
     marginTop: 5,
-  },
-  habitNotes: {
-    fontSize: 13,
-    color: '#888',
-    marginTop: 8,
-    fontStyle: 'italic',
   },
   checkbox: {
     width: 24,

@@ -1,12 +1,12 @@
 import { useSyncState } from '@/context/SyncContext';
 import { useEffect } from 'react';
-import { HabitStorage } from '@/storage/HabitStorage';
+import { CoreStorage } from '@/storage/CoreStorage';
 
 export default function SyncScheduler() {
   const { setSync } = useSyncState();
 
   useEffect(() => {
-    HabitStorage.initialize();
+    CoreStorage.initialize();
   }, []);
 
   return null;

@@ -5,9 +5,9 @@ export default function TabsLayout() {
   return (
     <Tabs>
       <Tabs.Screen
-        name="index"
+        name="calendar"
         options={{
-          title: '달력',
+          title: '캘린더',
           headerShown: false,
           tabBarIcon: ({ color, size }) => <MaterialIcons name="calendar-month" size={size} color={color} />,
         }}
@@ -16,6 +16,7 @@ export default function TabsLayout() {
         name="statistics"
         options={{
           title: '통계',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <MaterialIcons name="bar-chart" size={size} color={color} />,
         }}
       />

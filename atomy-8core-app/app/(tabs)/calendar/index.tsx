@@ -18,9 +18,9 @@ export default function CalendarIndex() {
   }
 
   function handleDayPress(day: DateData) {
-    console.log('선택한 날짜로 상세 화면 이동: ' + day.dateString);
+    console.log('선택한 날짜로 습관 목록 이동: ' + day.dateString);
     router.push({
-      pathname: '/detail',
+      pathname: '/calendar/cores',
       params: { date: day.dateString },
     });
   }

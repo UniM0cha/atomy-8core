@@ -1,33 +1,29 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QueryKeys } from '@/constant/QueryKeys';
-import { DayHabits, Habit } from '@/storage/types';
+import { Core, DayCores } from '@/storage/types';
 import { format } from 'date-fns';
-import { HabitStorage } from '@/storage/HabitStorage';
+import { CoreStorage } from '@/storage/CoreStorage';
 
-export function useHabits(date: Date) {
+export function useCores(date: Date) {
   return useQuery({
     queryKey: QueryKeys.HABITS(format(date, 'yyyy-MM-dd')),
-    queryFn: async (): Promise<Habit[]> => {
-      return await HabitStorage.getHabitsForDate(date);
+    queryFn: async (): Promise<Core[]> => {
+      return await CoreStorage.getCoresForDate(date);
     },
   });
 }
 
-export function useSaveHabit() {
+export function useSaveCore() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ date, habit }: { date: Date; habit: Habit }): Promise<Date> => {
-      const habits = await HabitStorage.getHabitsForDate(date);
-
+    mutationFn: async ({ date, habit }: { date: Date; habit: Core }): Promise<Date> => {
+      const habits = await CoreStorage.getCoresForDate(date);
       const updatedHabits = habits.map((h) => (h.core === habit.core ? habit : h));
-
-      const dayHabits: DayHabits = {
+      const dayHabits: DayCores = {
         habits: updatedHabits,
         updatedAt: new Date(),
       };
-
-      await HabitStorage.saveHabit(date, dayHabits);
-
+      await CoreStorage.saveDayCores(date, dayHabits);
       return date;
     },
     onSuccess: async (date) => {
