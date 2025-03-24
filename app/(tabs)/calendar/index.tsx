@@ -12,7 +12,7 @@ LocaleConfig.locales['kr'] = {
 
 LocaleConfig.defaultLocale = 'kr';
 
-export default function CalendarIndex() {
+export default function CalendarScreen() {
   function handleMonth(months: DateData[]) {
     console.log(months);
   }

@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -10,100 +10,42 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useCore } from '@/hooks/useCores';
+import { parse } from 'date-fns';
+import { useFormik } from 'formik';
 import { Core } from '@/storage/types';
+import { getCoreTitle, getCoreDescription } from '@/model/CoreModel';
+import { useEffect, useState } from 'react';
+import { Colors } from '@/constant/Colors';
+import { MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function CoreDetail() {
-  const { core, date } = useLocalSearchParams();
-  console.log(core, date);
+export default function CoreScreen() {
+  const navigation = useNavigation();
+  const searchParams = useLocalSearchParams();
+  const date = parse(searchParams.date as string, 'yyyy-MM-dd', new Date());
+  const core = Number(searchParams.core as string);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  const dateString = date as string;
+  // title 지정
+  useEffect(() => {
+    navigation.setOptions({ title: getCoreTitle(core) });
+  }, [core, navigation]);
 
-  const [habit, setHabit] = useState<Core | null>(null);
-  const [notes, setNotes] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { data: coreData } = useCore(date, core);
 
-  // // 습관 데이터 가져오기
-  // useEffect(() => {
-  //   const loadHabit = async () => {
-  //     try {
-  //       setLoading(true);
-  //
-  //       // 기본 습관 정보 가져오기
-  //       const defaultHabit = DEFAULT_HABITS.find((h) => h.id === habitId);
-  //       if (!defaultHabit) {
-  //         Alert.alert('오류', '습관 정보를 찾을 수 없습니다.');
-  //         router.back();
-  //         return;
-  //       }
-  //
-  //       // 저장된 습관 기록 조회
-  //       const habit = await getHabitByIdForDate(dateString, habitId);
-  //
-  //       if (habit) {
-  //         // 기록이 있으면 해당 정보 사용
-  //         setHabit(habit);
-  //         setNotes(habit.notes || '');
-  //       } else {
-  //         // 기록이 없으면 기본 습관 정보 사용
-  //         setHabit(defaultHabit);
-  //         setNotes('');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error loading habit:', error);
-  //       Alert.alert('오류', '습관 정보를 불러오는 중 오류가 발생했습니다.');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //
-  //   loadHabit();
-  // }, [habitId, dateString]);
+  const { values, setValues, isSubmitting, submitForm } = useFormik({
+    initialValues: new Values(coreData),
+    onSubmit: handleFormikSubmit,
+    enableReinitialize: true,
+  });
 
-  // // 저장 및 완료 처리
-  // const handleSave = async () => {
-  //   if (!habit) return;
-  //
-  //   try {
-  //     setSaving(true);
-  //
-  //     // 습관 정보 저장
-  //     await saveHabit(
-  //       dateString,
-  //       habitId,
-  //       true, // 완료 상태로 저장
-  //       notes,
-  //     );
-  //
-  //     // 저장 성공 안내
-  //     Alert.alert('저장 완료', '습관 정보가 저장되었습니다.', [{ text: '확인', onPress: () => router.back() }]);
-  //   } catch (error) {
-  //     console.error('Error saving habit:', error);
-  //     Alert.alert('오류', '저장 중 오류가 발생했습니다.');
-  //     setSaving(false);
-  //   }
-  // };
+  async function handleFormikSubmit(values: Values) {}
 
-  if (loading) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color="#2e64e5" />
-        <Text style={{ marginTop: 10 }}>습관 정보 로드 중...</Text>
-      </View>
-    );
+  async function handleContentChange(content: string) {
+    await setValues((values) => ({ ...values, content }));
   }
-
-  if (!habit) {
-    return (
-      <View style={[styles.container, styles.centered]}>
-        <Text>습관 정보를 찾을 수 없습니다.</Text>
-      </View>
-    );
-  }
-
-  // 이름 형식화 (습관 이름이 짧으면 부연 설명 추가)
-  // const habitTitle = habit.name.length < 4 && habit.description ? `${habit.name} (${habit.description})` : habit.name;
 
   return (
     <KeyboardAvoidingView
@@ -112,31 +54,25 @@ export default function CoreDetail() {
       keyboardVerticalOffset={100}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/*<View style={styles.header}>*/}
-        {/*  <Text style={styles.headerText}>{habitTitle}</Text>*/}
-        {/*  {habit.name.length >= 4 && habit.description ? (*/}
-        {/*    <Text style={styles.description}>{habit.description}</Text>*/}
-        {/*  ) : null}*/}
-        {/*</View>*/}
-
         <View style={styles.form}>
-          <Text style={styles.label}>메모</Text>
+          <View style={styles.labelContainer}>
+            <Text style={styles.label}>내용</Text>
+            <TouchableOpacity onPress={() => setIsFullScreen(true)}>
+              <MaterialIcons name="open-in-full" size={18} />
+            </TouchableOpacity>
+          </View>
           <TextInput
             style={styles.input}
             multiline
-            placeholder="이 습관에 대한 메모를 입력하세요..."
-            value={notes}
-            onChangeText={setNotes}
+            numberOfLines={10}
+            placeholder="이 습관에 대한 내용을 입력하세요..."
+            value={values.content}
+            onChangeText={handleContentChange}
             textAlignVertical="top"
-            editable={!saving}
+            editable={!isSubmitting}
           />
 
-          <View style={styles.dateContainer}>
-            <Text style={styles.dateLabel}>날짜:</Text>
-            <Text style={styles.dateValue}>{dateString}</Text>
-          </View>
-
-          {habit.completed ? (
+          {values.completed ? (
             <View style={styles.completedInfo}>
               <Text style={styles.completedText}>✓ 이미 완료된 습관입니다</Text>
             </View>
@@ -144,17 +80,39 @@ export default function CoreDetail() {
         </View>
 
         <TouchableOpacity
-          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
-          // onPress={handleSave}
-          disabled={saving}
+          style={[styles.saveButton, isSubmitting && styles.saveButtonDisabled]}
+          onPress={submitForm}
+          disabled={isSubmitting}
         >
-          {saving ? (
+          {isSubmitting ? (
             <ActivityIndicator color="#fff" size="small" />
           ) : (
-            <Text style={styles.saveButtonText}>{habit.completed ? '다시 저장하기' : '저장 및 완료'}</Text>
+            <Text style={styles.saveButtonText}>{values.completed ? '다시 저장하기' : '저장 및 완료'}</Text>
           )}
         </TouchableOpacity>
+
+        <Text style={styles.coreDescription} numberOfLines={undefined} ellipsizeMode="tail">
+          {getCoreDescription(core)}
+        </Text>
       </ScrollView>
+
+      <Modal visible={isFullScreen} animationType="slide" presentationStyle="pageSheet">
+        <View style={styles.modalHeader}>
+          <Text style={styles.modalTitle}>내용 작성</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={() => setIsFullScreen(false)}>
+            <Text style={styles.closeButtonText}>완료</Text>
+          </TouchableOpacity>
+        </View>
+        <TextInput
+          style={styles.fullScreenInput}
+          multiline
+          placeholder="이 습관에 대한 내용을 입력하세요..."
+          value={values.content}
+          onChangeText={handleContentChange}
+          textAlignVertical="top"
+          editable={!isSubmitting}
+        />
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -194,6 +152,11 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
+  labelContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   label: {
     fontSize: 16,
     fontWeight: '600',
@@ -204,9 +167,12 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     padding: 15,
+    paddingRight: 40,
     fontSize: 16,
-    minHeight: 150,
-    marginBottom: 20,
+    height: 240,
+    textAlignVertical: 'top',
+    marginTop: 5,
+    marginBottom: 10,
   },
   dateContainer: {
     flexDirection: 'row',
@@ -234,7 +200,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   saveButton: {
-    backgroundColor: '#2e64e5',
+    backgroundColor: Colors.primary,
     borderRadius: 8,
     padding: 15,
     alignItems: 'center',
@@ -245,8 +211,57 @@ const styles = StyleSheet.create({
     backgroundColor: '#9eb6e3',
   },
   saveButtonText: {
-    color: '#fff',
+    color: 'white',
     fontSize: 16,
     fontWeight: '600',
   },
+  coreDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    marginBottom: 20,
+    marginTop: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  closeButton: {
+    padding: 8,
+  },
+  closeButtonText: {
+    color: Colors.primary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modalTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 40,
+  },
+  fullScreenInput: {
+    flex: 1,
+    padding: 20,
+    fontSize: 16,
+    textAlignVertical: 'top',
+  },
 });
+
+class Values {
+  completed: boolean;
+  content: string;
+
+  constructor(core?: Core) {
+    this.completed = core?.completed || false;
+    this.content = core?.content || '';
+  }
+}

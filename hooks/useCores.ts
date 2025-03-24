@@ -6,9 +6,18 @@ import { CoreStorage } from '@/storage/CoreStorage';
 
 export function useCores(date: Date) {
   return useQuery({
-    queryKey: QueryKeys.HABITS(format(date, 'yyyy-MM-dd')),
+    queryKey: QueryKeys.CORES(format(date, 'yyyy-MM-dd')),
     queryFn: async (): Promise<Core[]> => {
       return await CoreStorage.getCoresForDate(date);
+    },
+  });
+}
+
+export function useCore(date: Date, core: number) {
+  return useQuery({
+    queryKey: QueryKeys.CORE(format(date, 'yyyy-MM-dd'), core),
+    queryFn: async (): Promise<Core> => {
+      return await CoreStorage.getCoreForDate(date, core);
     },
   });
 }
@@ -27,7 +36,7 @@ export function useSaveCore() {
       return date;
     },
     onSuccess: async (date) => {
-      await queryClient.invalidateQueries({ queryKey: QueryKeys.HABITS(format(date, 'yyyy-MM-dd')) });
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.CORES(format(date, 'yyyy-MM-dd')) });
     },
   });
 }

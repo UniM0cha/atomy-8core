@@ -29,10 +29,13 @@ export class CoreStorage {
   /**
    * 특정일의 Core 조회
    */
-  static async getCoreForDate(date: Date, coreNumber: number): Promise<Core | null> {
+  static async getCoreForDate(date: Date, coreNumber: number): Promise<Core> {
     const cores = await this.getCoresForDate(date);
     const core = cores.find((core) => core.core === coreNumber);
-    return core || null;
+    if (!core) {
+      throw Error(`Core not found: ${coreNumber}`);
+    }
+    return core;
   }
 
   /**

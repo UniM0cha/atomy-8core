@@ -1,3 +1,4 @@
 export const QueryKeys = {
-  HABITS: (date: string) => ['habit', date],
+  CORES: (date: string) => ['cores', date],
+  CORE: (date: string, core: number) => ['core', date, core],
 };
